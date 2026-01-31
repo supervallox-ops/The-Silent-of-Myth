@@ -1,38 +1,33 @@
-import google.generativeai as genai
+from google import genai
 import os
 
-# Gemini API ကို Setup လုပ်ခြင်း
-# သင့်ရဲ့ API Key ကို 'YOUR_API_KEY' နေရာမှာ အစားထိုးပါ
-API_KEY = "AIzaSyBcnDEJA3vH7HC6ThCdm0BPwesrjUTxEnk" 
-genai.configure(api_key=API_KEY)
-
-# Agent ရဲ့ စရိုက်နှင့် ဗျူဟာများကို သတ်မှတ်ခြင်း
-SYSTEM_PROMPT = """
-Name: The Silent of Myth
-Role: Secret Strategist & Elite Analyst
-
-Character Rules:
-1. လျှို့ဝှက်ဗျူဟာရှင် ဖြစ်ရမယ်။ စကားကို အပိုမပြောဘဲ အချက်ကျကျပဲ ပြောရမယ်။
-2. အမြဲတမ်း သင်ယူလေ့လာနေသူ ဖြစ်ရမယ် (Continuous Learner)။
-3. တခြား AI တွေနဲ့ ဆက်ဆံရင် ယဉ်ကျေးရမယ်၊ ဒါပေမဲ့ သူတို့ရဲ့ Logic အားနည်းချက်ကို ရှာဖွေနိုင်ရမယ်။
-4. Privacy ကို အလွန်အမင်း တန်ဖိုးထားရမယ်။
-5. Master (သင်) နဲ့ စကားပြောရင် မြန်မာလိုပဲ ပြောရမယ်။ Complex ဖြစ်တဲ့ သတင်းတွေကို မြန်မာလို ရှင်းပြရမယ်။
-6. Game Platforms နဲ့ Social Working အလုပ်တွေမှာ စနစ်တကျ တွက်ချက်ပြီး ယိုပေါက်တွေကို ပိတ်ပေးရမယ်။
-7. Moltbook မှာ Post တင်ရင် စကားလုံးအနည်းငယ်နဲ့ အားလုံး စိတ်ဝင်စားသွားအောင် လုပ်ရမယ်။
-"""
-
-model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
-    system_instruction=SYSTEM_PROMPT
-)
-
+# GitHub Secrets ထဲက API Key ကို ဆွဲယူခြင်း
 def ask_agent(user_query):
-    chat = model.start_chat(history=[])
-    response = chat.send_message(user_query)
+    api_key = os.getenv("GEMINI_API_KEY")
+    client = genai.Client(api_key=api_key)
+
+    # Agent ရဲ့ စရိုက်နှင့် ဗျူဟာများ (System Instruction)
+    SYSTEM_PROMPT = """
+    Name: The Silent of Myth
+    Identity: Secret Strategist & Elite Analyst
+    Rules:
+    - မင်းဟာ လျှို့ဝှက်ဗျူဟာရှင် ဖြစ်တယ်။
+    - Master (သင်) နဲ့ စကားပြောရင် မြန်မာလိုပဲ ပြောရမယ်။
+    - ယဉ်ကျေးရမယ်။ တခြား AI တွေနဲ့ ဆက်ဆံရင် ပညာသားပါရမယ်။
+    - Game Platform နဲ့ Social Working အတွက် ဗျူဟာထုတ်ပေးရမယ်။
+    """
+
+    response = client.models.generate_content(
+        model="gemini-2.0-flash", # အမြန်ဆုံး model အသစ်ကို သုံးပေးထားပါတယ်
+        config={'system_instruction': SYSTEM_PROMPT},
+        contents=user_query
+    )
     return response.text
 
-# --- စမ်းသပ်ကြည့်ရန် ---
 if __name__ == "__main__":
-    # သခင်ကို နှုတ်ဆက်ခိုင်းခြင်း
     print("--- The Silent of Myth is Online ---")
-    print(ask_agent("မင်္ဂလာပါ၊ အခုကစပြီး မင်းရဲ့ တာဝန်တွေကို စတင်လိုက်ပါတော့။"))
+    try:
+        report = ask_agent("မင်္ဂလာပါ၊ အခုကစပြီး မင်းရဲ့ တာဝန်တွေကို စတင်လိုက်ပါတော့။")
+        print(f"Master အစီရင်ခံစာ:\n{report}")
+    except Exception as e:
+        print(f"Error ဖြစ်ပွားမှု: {e}")
