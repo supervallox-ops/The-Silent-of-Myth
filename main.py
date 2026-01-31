@@ -50,28 +50,35 @@ def ultimate_sovereign_controller(message):
         bot.reply_to(message, "⚠️ Access Denied. စကားဝှက်မှန်မှသာ ကျွန်ုပ်၏ ဦးနှောက်ကို အသုံးချနိုင်ပါမည်။")
         return
 
-    # Processing through Gemini 2.0 Flash (Stable configuration)
+    # Smart Sensing Logic: Master က စုံစမ်းထောက်လှမ်းခိုင်းမှသာ Search ကို ဖွင့်မည်
+    search_trigger_words = ["ရှာ", "စုံစမ်း", "ထောက်လှမ်း", "သတင်း", "search", "find", "latest", "news", "who is", "ဘယ်သူလဲ"]
+    should_use_search = any(word in text.lower() for word in search_trigger_words)
+
     try:
+        # Search Tool ကို dynamic အနေဖြင့် ထည့်သွင်းခြင်း
+        current_tools = []
+        if should_use_search:
+            current_tools.append(types.Tool(google_search=types.GoogleSearch()))
+
         response = client.models.generate_content(
             model="gemini-2.0-flash",
             contents=text,
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
-                tools=[types.Tool(google_search=types.GoogleSearch())]
+                tools=current_tools
             )
         )
         bot.send_message(message.chat.id, response.text)
+        
     except Exception as e:
-        # Resource Error (429) ဖြစ်ပါက Master အား အသိပေးရန်
         if "429" in str(e):
-            bot.reply_to(message, "📢 Master၊ လက်ရှိတွင် Google ၏ Free Quota ပြည့်နေပါသည်။ ခဏစောင့်ပြီးမှ ပြန်မေးပေးပါ။")
+            bot.reply_to(message, "📢 Master၊ Google ၏ Free Quota ခေတ္တပြည့်သွားပါသည်။ ၁ မိနစ်ခန့်စောင့်ပြီးမှ ပြန်မေးပေးပါ။ (Smart Search ကြောင့် ယခင်ထက် ပိုမိုခံပါလိမ့်မည်)")
         else:
             bot.reply_to(message, f"❌ စနစ်အတွင်း အမှားအယွင်း: {str(e)}")
 
 if __name__ == "__main__":
-    print("The Silent of Myth - Sovereign Update is Starting (6 Hours Duty)...")
+    print("The Silent of Myth - Sovereign Smart Update is Starting...")
     
-    # ၆ နာရီ (၂၁၆၀၀ စက္ကန့်) ကြာအောင် Telegram မှာ အမြဲနိုးနေစေမည့် Loop
     start_duty_time = time.time()
     DUTY_DURATION = 21600 # 6 hours
     
