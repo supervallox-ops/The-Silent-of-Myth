@@ -3,7 +3,7 @@ import os
 
 # Gemini API ကို Setup လုပ်ခြင်း
 # သင့်ရဲ့ API Key ကို 'YOUR_API_KEY' နေရာမှာ အစားထိုးပါ
-API_KEY = "YOUR_API_KEY" 
+API_KEY = "AIzaSyBcnDEJA3vH7HC6ThCdm0BPwesrjUTxEnk" 
 genai.configure(api_key=API_KEY)
 
 # Agent ရဲ့ စရိုက်နှင့် ဗျူဟာများကို သတ်မှတ်ခြင်း
