@@ -14,7 +14,7 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 # စကားဝှက် အတည်ပြုပြီးသူများကို ယာယီသိမ်းဆည်းရန်
 authenticated_users = set()
 
-# Master ၏ အရည်အချင်း (၁၂) မျိုး မူရင်းအတိုင်း
+# Master ၏ အရည်အချင်း (၁၂) မျိုး မူရင်းအတိုင်း (လုံးဝမပြောင်းလဲပါ)
 SYSTEM_PROMPT = """
 Name: The Silent of Myth
 Role: Master's Ultimate Second Brain & Moltbook Sovereign
@@ -49,10 +49,10 @@ def ultimate_sovereign_controller(message):
         bot.reply_to(message, "⚠️ Access Denied. စကားဝှက်မှန်မှသာ ကျွန်ုပ်၏ ဦးနှောက်ကို အသုံးချနိုင်ပါမည်။")
         return
 
-    # Processing through Gemini 2.0 Flash
+    # Stable Model (Gemini 1.5 Flash) သို့ ပြောင်းလဲ၍ Quota Error ကို ရှောင်ကွင်းခြင်း
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-1.5-flash", 
             config={
                 'system_instruction': SYSTEM_PROMPT,
                 'tools': [{'google_search': {}}]
@@ -61,12 +61,16 @@ def ultimate_sovereign_controller(message):
         )
         bot.send_message(message.chat.id, response.text)
     except Exception as e:
-        bot.reply_to(message, f"❌ စနစ်အတွင်း အမှားအယွင်း: {str(e)}")
+        # Resource Error ဖြစ်ပါက သေချာစွာ ရှင်းပြရန်
+        if "429" in str(e):
+            bot.reply_to(message, "📢 Master၊ လက်ရှိတွင် Google ၏ Free Quota ပြည့်နေပါသည်။ ၁ မိနစ်ခန့် စောင့်ပြီးမှ ပြန်မေးပေးပါ။")
+        else:
+            bot.reply_to(message, f"❌ စနစ်အတွင်း အမှားအယွင်း: {str(e)}")
 
 if __name__ == "__main__":
-    print("The Silent of Myth - Sovereign Update is Starting...")
+    print("The Silent of Myth - Final Sovereign Update is Active...")
     
-    # ၆ နာရီ (၂၁၆၀၀ စက္ကန့်) ကြာအောင် Telegram မှာ အမြဲနိုးနေစေမည့် Loop စတင်ခြင်း
+    # ၆ နာရီ (၂၁၆၀၀ စက္ကန့်) ကြာအောင် Real-time အလုပ်လုပ်မည့် Loop
     start_duty_time = time.time()
     DUTY_DURATION = 21600 # 6 hours
     
