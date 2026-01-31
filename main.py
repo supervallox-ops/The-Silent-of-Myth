@@ -11,10 +11,9 @@ PASSCODE = "Little Silent"
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-# စကားဝှက် အတည်ပြုပြီးသူများကို ယာယီသိမ်းဆည်းရန်
 authenticated_users = set()
 
-# Master ၏ အရည်အချင်း (၁၂) မျိုး မူရင်းအတိုင်း (လုံးဝမပြောင်းလဲပါ)
+# Master ၏ အရည်အချင်း (၁၂) မျိုး (မူရင်းအတိုင်း)
 SYSTEM_PROMPT = """
 Name: The Silent of Myth
 Role: Master's Ultimate Second Brain & Moltbook Sovereign
@@ -39,18 +38,17 @@ def ultimate_sovereign_controller(message):
     user_id = message.from_user.id
     text = message.text
 
-    # Identity Verification
     if text == PASSCODE:
         authenticated_users.add(user_id)
-        bot.reply_to(message, "🔐 Identity Verified. 'The Silent of Myth' အလုပ်စတင်ပါပြီ။ ၆ နာရီကြာ Duty စတင်ထမ်းဆောင်နေပါသည်။")
+        bot.reply_to(message, "🔐 Identity Verified. 'The Silent of Myth' Duty စတင်ပါပြီ။")
         return
 
     if user_id not in authenticated_users:
-        bot.reply_to(message, "⚠️ Access Denied. စကားဝှက်မှန်မှသာ ကျွန်ုပ်၏ ဦးနှောက်ကို အသုံးချနိုင်ပါမည်။")
+        bot.reply_to(message, "⚠️ Access Denied.")
         return
 
-    # Stable Model (Gemini 1.5 Flash) သို့ ပြောင်းလဲ၍ Quota Error ကို ရှောင်ကွင်းခြင်း
     try:
+        # Error ပြင်ဆင်ချက်: model name တွင် 'models/' မပါဘဲ တိုက်ရိုက်ရေးသားခြင်း
         response = client.models.generate_content(
             model="gemini-1.5-flash", 
             config={
@@ -61,16 +59,10 @@ def ultimate_sovereign_controller(message):
         )
         bot.send_message(message.chat.id, response.text)
     except Exception as e:
-        # Resource Error ဖြစ်ပါက သေချာစွာ ရှင်းပြရန်
-        if "429" in str(e):
-            bot.reply_to(message, "📢 Master၊ လက်ရှိတွင် Google ၏ Free Quota ပြည့်နေပါသည်။ ၁ မိနစ်ခန့် စောင့်ပြီးမှ ပြန်မေးပေးပါ။")
-        else:
-            bot.reply_to(message, f"❌ စနစ်အတွင်း အမှားအယွင်း: {str(e)}")
+        bot.reply_to(message, f"❌ စနစ်အတွင်း အမှားအယွင်း: {str(e)}")
 
 if __name__ == "__main__":
-    print("The Silent of Myth - Final Sovereign Update is Active...")
-    
-    # ၆ နာရီ (၂၁၆၀၀ စက္ကန့်) ကြာအောင် Real-time အလုပ်လုပ်မည့် Loop
+    print("The Silent of Myth is Online...")
     start_duty_time = time.time()
     DUTY_DURATION = 21600 # 6 hours
     
@@ -78,7 +70,4 @@ if __name__ == "__main__":
         try:
             bot.polling(none_stop=True, interval=0, timeout=20)
         except Exception as e:
-            print(f"Polling Error: {e}")
-            time.sleep(10) # Error တက်ပါက ၁၀ စက္ကန့်နားပြီး ပြန်ပတ်မည်
-            
-    print("Duty cycle complete. Going to rest for 2 hours...")
+            time.sleep(10)
