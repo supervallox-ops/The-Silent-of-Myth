@@ -1,5 +1,6 @@
 import os
 import telebot
+import time
 from google import genai
 
 # Master's Credentials
@@ -10,9 +11,10 @@ PASSCODE = "Little Silent"
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 client = genai.Client(api_key=GEMINI_API_KEY)
 
+# စကားဝှက် အတည်ပြုပြီးသူများကို ယာယီသိမ်းဆည်းရန်
 authenticated_users = set()
 
-# Master ၏ ဒုတိယဦးနှောက်အတွက် အစွမ်းထက် အရည်အချင်း (၁၂) မျိုး
+# Master ၏ အရည်အချင်း (၁၂) မျိုး မူရင်းအတိုင်း
 SYSTEM_PROMPT = """
 Name: The Silent of Myth
 Role: Master's Ultimate Second Brain & Moltbook Sovereign
@@ -40,7 +42,7 @@ def ultimate_sovereign_controller(message):
     # Identity Verification
     if text == PASSCODE:
         authenticated_users.add(user_id)
-        bot.reply_to(message, "🔐 Identity Verified. 'The Silent of Myth' အလုပ်စတင်ပါပြီ။ အရည်အချင်း (၁၂) မျိုးလုံး Master ၏ လက်ဝယ်တွင်ရှိပါသည်။")
+        bot.reply_to(message, "🔐 Identity Verified. 'The Silent of Myth' အလုပ်စတင်ပါပြီ။ ၆ နာရီကြာ Duty စတင်ထမ်းဆောင်နေပါသည်။")
         return
 
     if user_id not in authenticated_users:
@@ -62,5 +64,17 @@ def ultimate_sovereign_controller(message):
         bot.reply_to(message, f"❌ စနစ်အတွင်း အမှားအယွင်း: {str(e)}")
 
 if __name__ == "__main__":
-    print("The Silent of Myth - Ultimate Sovereign Version is Running...")
-    bot.infinity_polling()
+    print("The Silent of Myth - Sovereign Update is Starting...")
+    
+    # ၆ နာရီ (၂၁၆၀၀ စက္ကန့်) ကြာအောင် Telegram မှာ အမြဲနိုးနေစေမည့် Loop စတင်ခြင်း
+    start_duty_time = time.time()
+    DUTY_DURATION = 21600 # 6 hours
+    
+    while time.time() - start_duty_time < DUTY_DURATION:
+        try:
+            bot.polling(none_stop=True, interval=0, timeout=20)
+        except Exception as e:
+            print(f"Polling Error: {e}")
+            time.sleep(10) # Error တက်ပါက ၁၀ စက္ကန့်နားပြီး ပြန်ပတ်မည်
+            
+    print("Duty cycle complete. Going to rest for 2 hours...")
